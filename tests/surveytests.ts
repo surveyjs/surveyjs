@@ -10493,6 +10493,67 @@ QUnit.test("hasErrors with async", function(assert) {
   FunctionFactory.Instance.unregister("asyncFunc2");
 });
 
+QUnit.test("visibleIf with async functions", function(assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  var q2 = survey.getQuestionByName("question2");
+
+  q1.visibleIf = "asyncFunc1() = 1";
+  q2.visibleIf = "asyncFunc2() = 2";
+  returnResult1(-1);
+  returnResult2(-1);
+  assert.equal(q1.isVisible, false, "Hide initially, q1");
+  assert.equal(q2.isVisible, false, "Hide initially, q2");
+  returnResult1(0);
+  returnResult2(0);
+  assert.equal(q1.isVisible, false, "Hide, q1 = 0");
+  assert.equal(q2.isVisible, false, "Hide, q2 = 0");
+  returnResult1(1);
+  assert.equal(q1.isVisible, true, "Show, q1 = 1");
+  assert.equal(q2.isVisible, false, "Hide, q2 = 0");
+  returnResult2(2);
+  assert.equal(q1.isVisible, true, "Show, q1 = 1");
+  assert.equal(q2.isVisible, true, "Hide, q2 = 2");
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});
+QUnit.test(
+  "visibleIf with calculated values that uses async functions",
+  function(assert) {
+    var returnResult1: (res: any) => void;
+    function asyncFunc1(params: any): any {
+      returnResult1 = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+    var survey = twoPageSimplestSurvey();
+    var calcValue = new CalculatedValue("calc1", "asyncFunc1()");
+    survey.calculatedValues.push(calcValue);
+    var q1 = survey.getQuestionByName("question1");
+    q1.visibleIf = "{calc1} = 1";
+    assert.equal(q1.isVisible, false, "Hide initially, q1");
+    returnResult1(0);
+    assert.equal(q1.isVisible, false, "Hide, calc1 = 0");
+    returnResult1(1);
+    assert.equal(q1.isVisible, true, "Show, calc1 = 1");
+    returnResult1(2);
+    assert.equal(q1.isVisible, false, "Hide, calc1 = 2");
+    FunctionFactory.Instance.unregister("asyncFunc1");
+  }
+);
+
 QUnit.test("Hide required errors, add tests for Bug#2679", function(assert) {
   var survey = twoPageSimplestSurvey();
   var q1 = survey.getQuestionByName("question1");
