@@ -1,5 +1,4 @@
 import React from "react";
-import { AdaptiveActionBarItemWrapper } from "survey-core";
 import { Base, Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -10,7 +9,7 @@ interface IActionBarItemProps {
   item: Action;
 }
 
-export class SurveyAction extends SurveyElementBase<
+export abstract class SurveyAction extends SurveyElementBase<
   IActionBarItemProps,
   any
 > {
@@ -21,7 +20,7 @@ export class SurveyAction extends SurveyElementBase<
     return this.item;
   }
 
-  render() {
+  renderElement() {
     const itemClass =
       "sv-action " +
       this.item.css +
@@ -29,37 +28,21 @@ export class SurveyAction extends SurveyElementBase<
     const separator = this.item.needSeparator ? (
       <SurveyActionBarSeparator></SurveyActionBarSeparator>
     ) : null;
-
-    const itemComponent = ReactElementFactory.Instance.createElement(
-      this.item.component || "sv-action-bar-item",
-      {
-        item: this.item,
-      }
-    );
+    const itemContent = this.renderContent();
     return (
       <span className={itemClass} id={this.item.id}>
         {separator}
-        {itemComponent}
+        {itemContent}
       </span>
     );
   }
+  protected abstract renderContent(): JSX.Element;
 }
 
-export class SurveyActionBarItem extends SurveyElementBase<
-  IActionBarItemProps,
-  any
-> {
-  get item(): Action {
-    return this.props.item;
-  }
-  protected getStateElement(): Base {
-    return this.item;
-  }
-
-  render() {
+export class SurveyActionBarItem extends SurveyAction {
+  renderContent() {
     return <>{this.renderInnerButton()}</>;
   }
-
   renderText() {
     if (this.item.hasTitle) {
       var titleClass =
@@ -68,7 +51,6 @@ export class SurveyActionBarItem extends SurveyElementBase<
       return <span className={titleClass}> {this.item.title}</span>;
     } else return null;
   }
-
   renderButtonContent() {
     const text = this.renderText();
     const svgIcon = !!this.item.iconName ? (
@@ -85,7 +67,6 @@ export class SurveyActionBarItem extends SurveyElementBase<
       </>
     );
   }
-
   renderInnerButton() {
     const className =
       "sv-action-bar-item " +
@@ -103,14 +84,10 @@ export class SurveyActionBarItem extends SurveyElementBase<
         {buttonContent}
       </button>
     );
-
     return button;
   }
 }
 
-ReactElementFactory.Instance.registerElement(
-  "sv-action-bar-item",
-  (props) => {
-    return React.createElement(SurveyActionBarItem, props);
-  }
-);
+ReactElementFactory.Instance.registerElement("sv-action-bar-item", (props) => {
+  return React.createElement(SurveyActionBarItem, props);
+});

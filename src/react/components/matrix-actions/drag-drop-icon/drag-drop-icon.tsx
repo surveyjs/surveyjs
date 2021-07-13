@@ -2,12 +2,13 @@ import React from "react";
 import { QuestionMatrixDropdownModelBase } from "survey-core";
 import { ReactElementFactory } from "../../../element-factory";
 import { ReactSurveyElement } from "../../../reactquestion_element";
+import { SurveyAction } from "../../action-bar/action-bar-item";
 
-export class SurveyQuestionMatrixDynamicDragDropIcon extends ReactSurveyElement {
+export class SurveyQuestionMatrixDynamicDragDropIcon extends SurveyAction {
   private get question(): QuestionMatrixDropdownModelBase {
-    return this.props.item.data.question;
+    return this.item.data.question;
   }
-  protected renderElement(): JSX.Element {
+  protected renderContent(): JSX.Element {
     return <span className={this.question.cssClasses.iconDrag} />;
   }
 }

@@ -1,33 +1,26 @@
 import React from "react";
-import { ActionBarItem } from "survey-core";
 import {
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
 } from "survey-core";
 import { ReactElementFactory } from "../../../element-factory";
-import { ReactSurveyElement } from "../../../reactquestion_element";
+import { SurveyAction } from "../../action-bar/action-bar-item";
 
-export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
+export class SurveyQuestionMatrixDetailButton extends SurveyAction {
   constructor(props: any) {
     super(props);
     this.handleOnShowHideClick = this.handleOnShowHideClick.bind(this);
   }
-  protected getStateElement() {
-    return this.props.item;
-  }
-  get item(): ActionBarItem {
-    return this.props.item;
-  }
   private get question(): QuestionMatrixDropdownModelBase {
-    return this.props.item.data.question;
+    return this.item.data.question;
   }
   private get row(): MatrixDropdownRowModelBase {
-    return this.props.item.data.row;
+    return this.item.data.row;
   }
   handleOnShowHideClick(event: any) {
     this.row.showHideDetailPanelClick();
   }
-  protected renderElement(): JSX.Element {
+  protected renderContent(): JSX.Element {
     var isExpanded = this.row.isDetailPanelShowing;
     var ariaExpanded = isExpanded;
     var ariaControls = isExpanded ? this.row.detailPanelId : null;
@@ -47,7 +40,7 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
 
 ReactElementFactory.Instance.registerElement(
   "sv-matrix-detail-button",
-  props => {
+  (props) => {
     return React.createElement(SurveyQuestionMatrixDetailButton, props);
   }
 );

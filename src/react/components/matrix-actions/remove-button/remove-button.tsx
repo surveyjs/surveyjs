@@ -4,23 +4,23 @@ import {
   QuestionMatrixDropdownModelBase,
 } from "survey-core";
 import { ReactElementFactory } from "../../../element-factory";
-import { ReactSurveyElement } from "../../../reactquestion_element";
+import { SurveyAction } from "../../action-bar/action-bar-item";
 
-export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement {
+export class SurveyQuestionMatrixDynamicRemoveButton extends SurveyAction {
   constructor(props: any) {
     super(props);
     this.handleOnRowRemoveClick = this.handleOnRowRemoveClick.bind(this);
   }
   private get question(): QuestionMatrixDropdownModelBase {
-    return this.props.item.data.question;
+    return this.item.data.question;
   }
   private get row(): MatrixDropdownRowModelBase {
-    return this.props.item.data.row;
+    return this.item.data.row;
   }
   handleOnRowRemoveClick(event: any) {
     this.question.removeRowUI(this.row);
   }
-  protected renderElement(): JSX.Element {
+  protected renderContent(): JSX.Element {
     var removeRowText = this.renderLocString(this.question.locRemoveRowText);
     return (
       <button

@@ -3,7 +3,7 @@ import {
   Base,
   ResponsivityManager,
   Action,
-  ActionContainer
+  ActionContainer,
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -25,22 +25,19 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     super(props);
     this.rootRef = React.createRef();
   }
-
   private get handleClick() {
     return this.props.handleClick !== undefined ? this.props.handleClick : true;
   }
-
   get model() {
     return this.props.model;
   }
-
   componentDidMount() {
     super.componentDidMount();
     if (!this.hasItems) return;
     const container: HTMLDivElement = this.rootRef.current;
     this.manager = new ResponsivityManager(
       container,
-      (this.model as any),
+      this.model as any,
       "span.sv-action:not(.sv-dots)"
     );
   }
@@ -48,7 +45,6 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     this.manager && this.manager.dispose();
     super.componentWillUnmount();
   }
-
   protected getStateElement(): Base {
     return this.model;
   }
@@ -59,30 +55,31 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
       <div
         ref={this.rootRef}
         className="sv-action-bar"
-        onClick={this.handleClick ? function(event) {
-          event.stopPropagation();
-        } : undefined}
+        onClick={
+          this.handleClick
+            ? function(event) {
+                event.stopPropagation();
+              }
+            : undefined
+        }
       >
         {items}
       </div>
     );
   }
-
   get hasItems(): boolean {
     return (this.model.actions || []).length > 0;
   }
-
   renderItems() {
-    return this.model.actions.map(
-      (item: Action, itemIndex: number) => {
-        if (!item.visible && item.visible !== undefined) {
-          return null;
-        }
-        return (
-          <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>
-        );
+    return this.model.actions.map((item: Action, itemIndex: number) => {
+      if (!item.visible && item.visible !== undefined) {
+        return null;
       }
-    );
+      return ReactElementFactory.Instance.createElement(
+        item.component || "sv-action-bar-item",
+        { item: item, key: "item" + itemIndex }
+      );
+    });
   }
 }
 
